@@ -6,14 +6,14 @@ import tensorflow as tf
 class TCNNConfig(object):
     """CNN配置参数"""
 
-    embedding_dim = 100      # 词向量维度
+    embedding_dim = 128      # 词向量维度
     seq_length = 1000        # 序列长度
     num_classes = 2        # 类别数
     num_filters = 256        # 卷积核数目
     kernel_size = 8         # 卷积核尺寸
-    vocab_size = 2000000       # 词汇表达小
+    vocab_size = 1575678       # 词汇表达小
 
-    hidden_dim = 256        # 全连接层神经元
+    hidden_dim = 128        # 全连接层神经元
 
     dropout_keep_prob = 0.8 # dropout保留比例
     learning_rate = 1e-3    # 学习率

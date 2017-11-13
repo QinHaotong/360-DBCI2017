@@ -24,6 +24,9 @@ def save_file():
     f_test = open('F:/BDCI2017-360/test.txt', 'w', encoding='utf-8')
     f_val = open('F:/BDCI2017-360/val.txt', 'w', encoding='utf-8')
 
+    f_p = open('F:/BDCI2017-360/POSITIVE.txt', 'w', encoding='utf-8')
+    f_n = open('F:/BDCI2017-360/NEGATIVE.txt', 'w', encoding='utf-8')
+
     pCount=0
     nCount=0
     count=0
@@ -36,6 +39,7 @@ def save_file():
             #print(line[0])
             count += 1
             if(line[3]=="POSITIVE"):
+                f_p.write(line[3] + '\t' + line[1] + line[2] + '\n')
                 if(pCount%50==0):
                     f_test.write(line[3] + '\t' + line[1] + line[2] + '\n')
                 elif(pCount%50==1):
@@ -55,6 +59,7 @@ def save_file():
                     tCount1+=1
                 pCount+=1
             elif (line[3]=="NEGATIVE"):
+                f_n.write(line[3] + '\t' + line[1] + line[2] + '\n')
                 if (nCount % 50 == 0):
                     f_test.write(line[3] + '\t' + line[1] + line[2] + '\n')
                 elif (nCount % 50 == 1):

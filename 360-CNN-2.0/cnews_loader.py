@@ -7,10 +7,6 @@ import numpy as np
 import jieba
 import os
 
-'''
-第一次运行前先看最后一行，去掉注释运行一遍，生成词汇表txt文件
-'''
-
 
 def read_file(filename):
     """读取文件数据"""
@@ -26,22 +22,6 @@ def read_file(filename):
                 pass
     return contents, labels
 
-def build_vocab_last(train_dir, vocab_dir, vocab_size=5000):
-    """根据训练集构建词汇表，存储——我忘了这个版本是干啥的了，先当它没用"""
-    data_train, _ = read_file(train_dir)
-    f=open(vocab_dir, 'w', encoding='utf-8')
-    all_data = []
-    for content in data_train:
-        all_data.extend(content)
-
-    counter = Counter(all_data)
-    count_pairs = counter.most_common(vocab_size - 1)
-    words, _ = list(zip(*count_pairs))
-    # 添加一个 <PAD> 来将所有文本pad为同一长度
-    words = ['<PAD>'] + list(words)
-
-    f.write('\n'.join(words))
-
 
 def build_vocab(train_dir, vocab_dir, vocab_size=2000000):
     """根据训练集构建词汇表，存储——结巴分词版本，每个词为结巴分词结果（注释部分为非中文字的加入）"""
@@ -51,100 +31,30 @@ def build_vocab(train_dir, vocab_dir, vocab_size=2000000):
     count = 0
     with open(train_dir, 'r', encoding='utf-8') as f1:
         for line in f1:
-            count+=1
-            _, content = line.strip().split('\t')
-            seg_list = jieba.cut(content)
-            all_data.extend(seg_list)
-            if(count%1000==0):
-                counter = Counter(all_data)
-                all_data = []
-                count_pairs = counter.most_common()
-                words, _ = list(zip(*count_pairs))
-                temp = temp + list(words)
-                words = []
-                counter = Counter(temp)
-                #print(type(counter))
-                count_pairs = counter.most_common()
-                words, _ = list(zip(*count_pairs))
-                temp = list(words)
+            label, content = line.strip().split('\t')
+            if label=='POSITIVE':
+                count+=1
+                seg_list = jieba.cut(content, cut_all=True)
+                all_data.extend(seg_list)
+                if (count % 1000 == 0):
+                    counter = Counter(all_data)
+                    all_data = []
+                    count_pairs = counter.most_common()
+                    words, _ = list(zip(*count_pairs))
+                    temp = temp + list(words)
+                    words = []
+                    counter = Counter(temp)
+                    print(count)
+                    count_pairs = counter.most_common()
+                    words, _ = list(zip(*count_pairs))
+                    temp = list(words)
         counter = Counter(temp)
-        count_pairs = counter.most_common(vocab_size - 1)
+        count_pairs = counter.most_common()
         words, _ = list(zip(*count_pairs))
         words = ['<PAD>'] + list(words)
-
+        print(len(words))
         f.write('\n'.join(words))
 
-def build_vocab_last1(train_dir, vocab_dir, vocab_size=2000000):
-    """根据训练集构建词汇表，存储——单字版本，每个词为单字"""
-    f=open(vocab_dir, 'w', encoding='utf-8')
-    all_data = []
-    count=0
-    A=vocab_size
-
-    with open(train_dir, 'r', encoding='utf-8') as f1:
-        letter=[]
-        for line in f1:
-            label, content = line.strip().split('\t')
-            letter.extend(list(content))
-            count+=1
-            if (count)%10000==0:
-                print(count)
-                word = []
-                for i in range(len(letter) - 1):
-                    word.append(letter[i] + letter[i + 1])
-                counter = Counter(word)
-                count_pairs = counter.most_common(int(vocab_size/20))
-                A = A - (int(vocab_size / 20) )
-                words, _ = list(zip(*count_pairs))
-                if count==10000:
-                    # 添加一个 <PAD> 来将所有文本pad为同一长度
-                    words = ['<PAD>'] + list(words)
-                letter=[]
-                word=[]
-                f.write('\n'.join(words))
-
-        f1.close()
-
-    with open(train_dir, 'r', encoding='utf-8') as f1:
-        letter=[]
-        for line in f1:
-            label, content = line.strip().split('\t')
-            letter.extend(list(content))
-            count+=1
-            if (count)%10000==0:
-                print(count)
-                word = []
-                for i in range(len(letter) - 2):
-                    word.append(letter[i] + letter[i + 1]+ letter[i + 2])
-                counter = Counter(word)
-                count_pairs = counter.most_common(int(vocab_size/20))
-                A = A - (int(vocab_size / 20))
-                words, _ = list(zip(*count_pairs))
-                letter=[]
-                word=[]
-                f.write('\n'.join(words))
-
-        f1.close()
-
-    if A>0:
-        with open(train_dir, 'r', encoding='utf-8') as f1:
-            for line in f1:
-                label, content = line.strip().split('\t')
-                letter = list(content)
-                all_data.extend(letter)
-                count += 1
-                if (count) % 50000 == 0:
-                    print(count)
-            counter = Counter(all_data)
-            count_pairs = counter.most_common(A-1)
-            words, _ = list(zip(*count_pairs))
-
-
-            f.write('\n'.join(words))
-
-            f1.close()
-    elif A<0:
-        print("ERROR")
 
 def read_vocab(vocab_dir):
     """读取词汇表"""
